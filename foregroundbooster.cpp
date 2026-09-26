@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2020 Henri Chain <henri.chain@enioka.com>
-//
+// //
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #include "foregroundbooster.h"
@@ -9,6 +9,12 @@
 #include <fstream>
 
 using namespace TaskManager;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+using DataChangedRoles = QList<int>;
+#else
+using DataChangedRoles = QVector<int>;
+#endif
 
 ForegroundBooster::ForegroundBooster(QObject *parent)
     : QObject(parent)
@@ -20,7 +26,7 @@ ForegroundBooster::ForegroundBooster(QObject *parent)
    connect(m_tasksModel, &TasksModel::activeTaskChanged, this, &ForegroundBooster::onActiveWindowChanged);
    connect(m_tasksModel,
            &TasksModel::dataChanged,
-           [this](const QModelIndex &topLeft, const QModelIndex &bottomRight, const QList<int> &roles) {
+           [this](const QModelIndex &topLeft, const QModelIndex &bottomRight, const DataChangedRoles &roles) {
                Q_UNUSED(topLeft)
                Q_UNUSED(bottomRight)
                if (roles.contains(AbstractTasksModel::IsWindow) || roles.isEmpty()) {
@@ -132,7 +138,7 @@ void ForegroundBooster::onActiveWindowChanged()
     }
 
     const auto prevApp = m_appsByPid.value(m_currentPid);
-    qDebug() << "Switching from" << m_currentAppid << "to" << appid;
+    qDebug() << "Switching from " << m_currentAppid << " to " << appid;
 
     KApplicationScope *currentApp;
 
